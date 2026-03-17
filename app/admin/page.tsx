@@ -17,6 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Settings, Trash2, Edit } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { FloatingFaces } from "@/components/ui/FloatingFaces";
 
 interface Sala {
   id: string;
@@ -112,16 +113,21 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-900 p-4">
-        <Card className="w-full max-w-md bg-zinc-950 border-zinc-800 text-white">
-          <CardHeader><CardTitle>Acesso Admin</CardTitle></CardHeader>
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <FloatingFaces />
+        <Card className="w-full max-w-md text-center z-100">
+          <CardHeader><CardTitle>Acesso administrador</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Digite a senha"
-              className="bg-zinc-900 border-zinc-700"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleLogin();
+                }
+              }}
             />
             <Button onClick={handleLogin}>Entrar no Dashboard</Button>
           </CardContent>
