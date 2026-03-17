@@ -10,10 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { QRCodeSVG } from "qrcode.react";
 
-import { ArrowLeft, Trash2, Edit, Plus, Share2, Copy, Check, BarChart2, Users, Settings, Candy, HelpCircle, LayoutDashboard, Trophy, UserPlus } from "lucide-react";
+import { ArrowLeft, Trash2, Edit, Plus, Share2, Copy, Check, BarChart2, Users, Settings, Candy, HelpCircle, LayoutDashboard, Trophy, UserPlus, Download } from "lucide-react";
 
 import { SidebarInset, SidebarProvider, SidebarTrigger, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -167,16 +167,17 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
 
         setChartPerguntaTexto(pergunta.texto);
 
-        const votosIniciais: any = { name: 'Votos' };
-        candidatos.forEach(c => {
-            votosIniciais[c.nome] = 0;
-        });
-        setChartData([votosIniciais]);
+        const votosPorCandidato = candidatos.map(c => ({
+            name: c.nome,
+            votos: 0,
+            eleitores: [] as string[]
+        }));
+        setChartData(votosPorCandidato);
         setIsChartModalOpen(true);
 
         const { data: votosData, error } = await supabase
             .from("votos_provavel")
-            .select("voto")
+            .select("voto, nome_eleitor")
             .eq("sala_id", roomId)
             .eq("pergunta_id", pergunta.id);
 
@@ -185,15 +186,21 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
         }
 
         if (votosData && votosData.length > 0) {
-            const contagemReal = { ...votosIniciais };
+            const contagemReal = candidatos.map(c => ({
+                name: c.nome,
+                votos: 0,
+                eleitores: [] as string[]
+            }));
 
             votosData.forEach((v: any) => {
-                if (contagemReal[v.voto] !== undefined) {
-                    contagemReal[v.voto] += 1;
+                const candidatoEncontrado = contagemReal.find(c => c.name === v.voto);
+                if (candidatoEncontrado) {
+                    candidatoEncontrado.votos += 1;
+                    candidatoEncontrado.eleitores.push(v.nome_eleitor);
                 }
             });
 
-            setChartData([contagemReal]);
+            setChartData(contagemReal);
         }
     };
 
@@ -208,6 +215,39 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
             try { document.execCommand('copy'); setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); } catch (err) { console.error('Fallback falhou ao copiar', err); }
             document.body.removeChild(textArea);
         }
+    };
+
+    const downloadQRCode = () => {
+        const svgElement = document.getElementById("qr-code-svg");
+        if (!svgElement) return;
+
+        const serializer = new XMLSerializer();
+        let svgData = serializer.serializeToString(svgElement);
+        if (!svgData.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+            svgData = svgData.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new window.Image();
+
+        img.onload = () => {
+            canvas.width = img.width || 220;
+            canvas.height = img.height || 220;
+            if (ctx) {
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            }
+            const pngFile = canvas.toDataURL("image/png");
+            const downloadLink = document.createElement("a");
+            downloadLink.download = `qrcode_${sala?.codigo || 'sala'}.png`;
+            downloadLink.href = pngFile;
+            downloadLink.click();
+        };
+
+        const encodedData = window.btoa(unescape(encodeURIComponent(svgData)));
+        img.src = "data:image/svg+xml;base64," + encodedData;
     };
 
     if (isLoading) return <div className="flex h-screen items-center justify-center">Carregando painel da sala...</div>;
@@ -407,14 +447,14 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                                                     const diferenca = Math.abs(item.palpite - gabarito);
 
                                                     return (
-                                                        <div key={item.id} className={`flex items-center justify-between p-4 rounded-lg border shadow-sm transition-all ${isTop3 ? bgColors[index] : 'bg-white border-zinc-100'}`}>
+                                                        <div key={item.id} className={`flex items-center justify-between p-2 rounded-lg border shadow-sm transition-all ${isTop3 ? bgColors[index] : 'bg-white border-zinc-100'}`}>
                                                             <div className="flex items-center gap-3">
                                                                 {isTop3 ? (
-                                                                    <Trophy className={`h-6 w-6 ${colors[index]}`} />
+                                                                    <Trophy className={`h-4 w-4 ${colors[index]}`} />
                                                                 ) : (
-                                                                    <span className="flex items-center justify-center h-6 w-6 rounded-full bg-zinc-100 text-zinc-500 text-xs font-bold">{index + 1}</span>
+                                                                    <span className="flex items-center justify-center h-4 w-4 rounded-full bg-zinc-100 text-zinc-500 text-xs font-medium">{index + 1}</span>
                                                                 )}
-                                                                <span className={`font-semibold ${isTop3 ? 'text-zinc-800' : 'text-zinc-600'}`}>{item.nome}</span>
+                                                                <span className={`font-medium ${isTop3 ? 'text-zinc-800' : 'text-zinc-600'}`}>{item.nome}</span>
                                                             </div>
                                                             <div className="flex flex-col items-end">
                                                                 <span className={`font-bold ${isTop3 ? 'text-primary' : 'text-zinc-700'}`}>{item.palpite}</span>
@@ -488,7 +528,7 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                                             <TableBody>
                                                 {perguntas.map((pergunta) => (
                                                     <TableRow key={pergunta.id} className="group">
-                                                        <TableCell className="font-medium text-base py-4">{pergunta.texto}</TableCell>
+                                                        <TableCell className=" py-4">{pergunta.texto}</TableCell>
                                                         <TableCell className="text-right whitespace-nowrap py-4">
                                                             <Button variant="outline" size="sm" className="mr-3 border-primary/50 text-primary hover:bg-primary/10 transition-colors" onClick={() => openChartModal(pergunta)}><BarChart2 className="h-4 w-4 mr-2" />Ver Resultados</Button>
                                                             <Button variant="ghost" size="icon" onClick={() => { setIsEditing(true); setCurrentPerguntaId(pergunta.id); setTextoPergunta(pergunta.texto); setIsPerguntaModalOpen(true); }}><Edit className="h-4 w-4 text-zinc-400 group-hover:text-blue-600 transition-colors" /></Button>
@@ -518,10 +558,46 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                 <XAxis dataKey="name" hide />
                                 <YAxis />
-                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                {candidatos.map((c, index) => (
-                                    <Bar key={c.id} dataKey={c.nome} fill={chartColors[index % chartColors.length]} radius={[8, 8, 0, 0]} label={{ position: 'top', fill: '#52525b', fontSize: 16, fontWeight: 'bold' }} />
-                                ))}
+                                <Tooltip
+                                    cursor={{ fill: 'transparent' }}
+                                    content={({ active, payload }) => {
+                                        if (active && payload && payload.length) {
+                                            const data = payload[0].payload;
+                                            if (data.votos === 0) return null;
+
+                                            // Encontrar a cor correta baseada no index original do candidato
+                                            const corIndex = candidatos.findIndex(c => c.nome === data.name);
+                                            const cor = chartColors[corIndex >= 0 ? corIndex % chartColors.length : 0];
+
+                                            return (
+                                                <div className="bg-white p-3 rounded-xl shadow-xl border border-zinc-100 min-w-[150px] max-w-[260px] sm:max-w-[320px] pointer-events-none whitespace-normal break-words">
+                                                    <p className="font-bold text-zinc-800 mb-2 border-b pb-1">Votantes por Pessoa:</p>
+                                                    <div className="mb-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cor }} />
+                                                            <span className="font-semibold text-zinc-700">{data.name}: {data.votos} voto(s)</span>
+                                                        </div>
+                                                        {data.eleitores && data.eleitores.length > 0 && (
+                                                            <div className="flex flex-wrap pl-5 gap-1">
+                                                                {data.eleitores.map((nome: string, i: number) => (
+                                                                    <span key={i} className="inline-block bg-primary/10 text-primary font-bold text-[10px] uppercase px-2 py-0.5 rounded">{nome}</span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }}
+                                />
+                                <Bar dataKey="votos" radius={[8, 8, 0, 0]} label={{ position: 'top', fill: '#52525b', fontSize: 16, fontWeight: 'bold' }}>
+                                    {chartData.map((entry, index) => {
+                                        const corIndex = candidatos.findIndex(c => c.nome === entry.name);
+                                        const cor = chartColors[corIndex >= 0 ? corIndex % chartColors.length : 0];
+                                        return <Cell key={`cell-${index}`} fill={cor} />;
+                                    })}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -558,7 +634,10 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader><DialogTitle className="text-center text-2xl">Convide o Pessoal!</DialogTitle></DialogHeader>
                     <div className="flex flex-col items-center justify-center space-y-6 py-4">
-                        <div className="bg-white p-4 rounded-xl shadow-sm border"><QRCodeSVG value={inviteUrl} size={220} level="H" includeMargin={true} /></div>
+                        <div className="bg-white p-4 rounded-xl shadow-sm border"><QRCodeSVG id="qr-code-svg" value={inviteUrl} size={220} level="H" includeMargin={true} /></div>
+                        <Button variant="outline" onClick={downloadQRCode} className="w-full max-w-[220px] font-bold text-primary border-primary/20 hover:bg-primary/5 transition-colors">
+                            <Download className="h-4 w-4 mr-2" /> Baixar QR Code
+                        </Button>
                         <div className="flex w-full items-center space-x-2"><Input readOnly value={inviteUrl} className="bg-zinc-100 font-mono text-sm" /><Button size="icon" onClick={copyToClipboard} className="shrink-0">{isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}</Button></div>
                     </div>
                 </DialogContent>
