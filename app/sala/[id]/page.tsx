@@ -82,6 +82,45 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     fetchDados();
   }, [codigoSala]);
 
+  // Polling: verifica a cada 5s se o admin liberou os resultados
+  useEffect(() => {
+    if (!sala?.id || state.step !== 'finished') return;
+
+    const salaId = sala.id;
+
+    const interval = setInterval(async () => {
+      const { data: salaAtualizada } = await supabase
+        .from("salas")
+        .select("*")
+        .eq("id", salaId)
+        .single();
+
+      if (salaAtualizada) {
+        setSala(salaAtualizada);
+
+        if (salaAtualizada.mostrar_resultado_jujubas && salaAtualizada.resposta_jujubas) {
+          const { data: palpitesData } = await supabase
+            .from("palpites_jujubas")
+            .select("*")
+            .eq("sala_id", salaAtualizada.id);
+
+          if (palpitesData && palpitesData.length > 0) {
+            const gabarito = salaAtualizada.resposta_jujubas;
+            const ranking = [...palpitesData].sort(
+              (a, b) => Math.abs(a.palpite - gabarito) - Math.abs(b.palpite - gabarito)
+            );
+            setTop3Jujubas(ranking.slice(0, 3));
+          }
+        } else {
+          setTop3Jujubas([]);
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sala?.id, state.step]);
+
   useEffect(() => {
     const verificarParticipante = async () => {
       if (isLoaded && sala && state.name && state.step !== 'name') {
@@ -235,7 +274,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
             {sala.mostrar_resultado_jujubas && (
               <div className="mt-6 animate-in fade-in zoom-in duration-500 space-y-3">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm font-semibold text-green-800 uppercase tracking-wide">O pote tinha</p>
+                  <p className="text-sm font-semibold text-green-800 uppercase tracking-wide">O pote tem</p>
                   <p className="text-4xl font-bold text-green-600 mt-1">{sala.resposta_jujubas} unidades</p>
                 </div>
 
