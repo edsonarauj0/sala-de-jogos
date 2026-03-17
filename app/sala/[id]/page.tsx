@@ -342,7 +342,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                       const resposta = state.maisProvavelAnswers[pergunta.id];
                       if (!resposta) return null;
                       return (
-                        <div key={pergunta.id} className="flex flex-col p-3 bg-card rounded-lg border shadow-sm">
+                        <div key={pergunta.id} className="flex flex-col p-3 bg-card rounded-lg border">
                           <span className="text-xs text-muted-foreground font-medium">{index + 1}. {pergunta.texto}</span>
                           <span className="text-sm font-bold text-primary mt-1">→ {resposta}</span>
                         </div>
