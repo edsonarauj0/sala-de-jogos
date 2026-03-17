@@ -137,7 +137,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-green-200/10 p-8">
+    <div className="min-h-screen  p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-zinc-900">Dashboard Admin</h1>
         <Button onClick={openCreateModal}>Nova Sala</Button>
