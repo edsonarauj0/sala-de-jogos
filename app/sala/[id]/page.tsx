@@ -7,7 +7,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useGameProgress } from "@/components/hooks/GameState";
 import confetti from "canvas-confetti";
-import { FloatingFaces } from "@/components/ui/FloatingFaces";
+import { FallingLeaves } from "@/components/ui/FallingLeaves";
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -155,8 +155,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const perguntaAtual = perguntas[perguntaAtualIndex];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4">
-      <FloatingFaces />
+    <div className="flex min-h-screen items-center justify-center bg-green-200/10 p-4">
+      <FallingLeaves count={40} />
       {state.step === 'name' && (
         <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300 z-100">
           <CardHeader><CardTitle>Como podemos te chamar?</CardTitle></CardHeader>

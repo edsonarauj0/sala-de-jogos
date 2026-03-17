@@ -17,7 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Settings, Trash2, Edit } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { FloatingFaces } from "@/components/ui/FloatingFaces";
+import { FallingLeaves } from "@/components/ui/FallingLeaves";
 
 interface Sala {
   id: string;
@@ -113,8 +113,8 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <FloatingFaces />
+      <div className="flex min-h-screen items-center justify-center p-4 bg-green-200/10">
+        <FallingLeaves count={40} />
         <Card className="w-full max-w-md text-center z-100">
           <CardHeader><CardTitle>Acesso administrador</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-8">
+    <div className="min-h-screen bg-green-200/10 p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-zinc-900">Dashboard Admin</h1>
         <Button onClick={openCreateModal}>Nova Sala</Button>
