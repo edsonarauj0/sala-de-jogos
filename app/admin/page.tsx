@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Settings, Trash2, Edit } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { FallingLeaves } from "@/components/ui/FallingLeaves";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface Sala {
   id: string;
@@ -113,7 +114,8 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4 bg-green-200/10">
+      <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+        <ThemeToggle />
         <FallingLeaves count={40} />
         <Card className="w-full max-w-md text-center z-100">
           <CardHeader><CardTitle>Acesso administrador</CardTitle></CardHeader>
@@ -137,9 +139,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen  p-8">
+    <div className="min-h-screen p-8 bg-background">
+      <ThemeToggle />
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-zinc-900">Dashboard Admin</h1>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard Admin</h1>
         <Button onClick={openCreateModal}>Nova Sala</Button>
       </div>
 
@@ -149,9 +152,9 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-4 text-zinc-500">Carregando salas...</div>
+            <div className="text-center py-4 text-muted-foreground">Carregando salas...</div>
           ) : salas.length === 0 ? (
-            <div className="text-center py-4 text-zinc-500">Nenhuma sala cadastrada.</div>
+            <div className="text-center py-4 text-muted-foreground">Nenhuma sala cadastrada.</div>
           ) : (
             <Table>
               <TableHeader>
@@ -169,7 +172,7 @@ export default function AdminDashboard() {
                       {/* O nome agora é clicável e redireciona para o dashboard da sala */}
                       <button
                         onClick={() => router.push(`/admin/sala/${sala.id}`)}
-                        className="font-medium text-blue-600 hover:underline cursor-pointer"
+                        className="font-medium text-primary hover:underline cursor-pointer"
                       >
                         {sala.nome}
                       </button>

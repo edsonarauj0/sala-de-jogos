@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { useGameProgress } from "@/components/hooks/GameState";
 import confetti from "canvas-confetti";
 import { FallingLeaves } from "@/components/ui/FallingLeaves";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -22,33 +23,58 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const [top3Jujubas, setTop3Jujubas] = useState<any[]>([]);
 
   const fireConfetti = useCallback(() => {
-    const duration = 3000;
+    const duration = 5000;
     const end = Date.now() + duration;
-
+    const interval = 3000;
+    let lastFrameTime = 0;
+    const triangle = confetti.shapeFromPath({
+      path: "M0 10 L5 0 L10 10z",
+    })
+    const square = confetti.shapeFromPath({
+      path: "M0 0 L10 0 L10 10 L0 10 Z",
+    })
+    const coin = confetti.shapeFromPath({
+      path: "M5 0 A5 5 0 1 0 5 10 A5 5 0 1 0 5 0 Z",
+    })
+    const tree = confetti.shapeFromPath({
+      path: "M5 0 L10 10 L0 10 Z",
+    })
     const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.6 },
-        colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'],
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.6 },
-        colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'],
-      });
+      const now = Date.now();
 
-      if (Date.now() < end) {
+      if (now - lastFrameTime >= interval) {
+        lastFrameTime = now;
+
+        confetti({
+          particleCount: 65,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          shapes: [triangle, square, coin, tree],
+          scalar: 1.2,
+          drift: 0.5,
+          ticks: 100
+        });
+
+        confetti({
+          particleCount: 65,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          shapes: [triangle, square, coin, tree],
+          scalar: 1.2,
+          drift: -0.5,
+          ticks: 100
+        });
+      }
+
+      if (now < end) {
         requestAnimationFrame(frame);
       }
     };
 
     frame();
   }, []);
-
   useEffect(() => {
     if (state.step === 'finished' && sala?.mostrar_resultado_jujubas) {
       fireConfetti();
@@ -82,7 +108,6 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     fetchDados();
   }, [codigoSala]);
 
-  // Polling: verifica a cada 5s se o admin liberou os resultados
   useEffect(() => {
     if (!sala?.id || state.step !== 'finished') return;
 
@@ -118,7 +143,6 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     }, 5000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sala?.id, state.step]);
 
   useEffect(() => {
@@ -194,7 +218,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const perguntaAtual = perguntas[perguntaAtualIndex];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-green-200/10 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <ThemeToggle />
       <FallingLeaves count={40} />
       {state.step === 'name' && (
         <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300 z-100">
@@ -221,9 +246,9 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           <CardHeader>
             <CardTitle>Jogo 2: Quem é mais provável?</CardTitle>
             {perguntas.length > 0 ? (
-              <p className="text-sm font-medium text-zinc-700 mt-2">{perguntaAtualIndex + 1}. {perguntaAtual?.texto}</p>
+              <p className="text-sm font-medium text-foreground mt-2">{perguntaAtualIndex + 1}. {perguntaAtual?.texto}</p>
             ) : (
-              <p className="text-sm text-zinc-500">Nenhuma pergunta cadastrada.</p>
+              <p className="text-sm text-muted-foreground">Nenhuma pergunta cadastrada.</p>
             )}
           </CardHeader>
 
@@ -256,7 +281,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
               </>
             ) : (
               <div className="text-center">
-                <p className="text-sm text-zinc-500 mb-4">Aguardando configurações do jogo...</p>
+                <p className="text-sm text-muted-foreground mb-4">Aguardando configurações do jogo...</p>
                 <Button onClick={() => updateState({ step: 'finished' })}>Finalizar</Button>
               </div>
             )}
@@ -269,7 +294,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           <CardHeader>
             <CardTitle className="text-3xl">🎉</CardTitle>
             <CardTitle>Respostas salvas!</CardTitle>
-            <p className="text-zinc-500">Aproveite a festa, {state.name}!</p>
+            <p className="text-muted-foreground">Aproveite a festa, {state.name}!</p>
 
             {sala.mostrar_resultado_jujubas && (
               <div className="mt-6 animate-in fade-in zoom-in duration-500 space-y-3">
@@ -308,17 +333,17 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
             {perguntas.length > 0 && Object.keys(state.maisProvavelAnswers).length > 0 && (
               <div className="mt-6 text-left animate-in fade-in duration-500">
                 <details className="group">
-                  <summary className="cursor-pointer list-none flex items-center justify-between p-3 bg-zinc-100 rounded-lg border hover:bg-zinc-200 transition-colors">
-                    <span className="font-semibold text-sm text-zinc-700">📋 Suas Respostas — Quem é mais provável?</span>
-                    <span className="text-zinc-400 text-xs group-open:rotate-180 transition-transform duration-200">▼</span>
+                  <summary className="cursor-pointer list-none flex items-center justify-between p-3 bg-muted rounded-lg border hover:bg-muted/80 transition-colors">
+                    <span className="font-semibold text-sm text-foreground">📋 Suas Respostas — Quem é mais provável?</span>
+                    <span className="text-muted-foreground text-xs group-open:rotate-180 transition-transform duration-200">▼</span>
                   </summary>
                   <div className="mt-2 space-y-2">
                     {perguntas.map((pergunta, index) => {
                       const resposta = state.maisProvavelAnswers[pergunta.id];
                       if (!resposta) return null;
                       return (
-                        <div key={pergunta.id} className="flex flex-col p-3 bg-white rounded-lg border shadow-sm">
-                          <span className="text-xs text-zinc-500 font-medium">{index + 1}. {pergunta.texto}</span>
+                        <div key={pergunta.id} className="flex flex-col p-3 bg-card rounded-lg border shadow-sm">
+                          <span className="text-xs text-muted-foreground font-medium">{index + 1}. {pergunta.texto}</span>
                           <span className="text-sm font-bold text-primary mt-1">→ {resposta}</span>
                         </div>
                       );
