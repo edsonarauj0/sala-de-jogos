@@ -19,6 +19,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger, Sidebar, SidebarHeader, 
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbSeparator, BreadcrumbPage, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { FallingLeaves } from "@/components/ui/FallingLeaves";
 
 interface Sala {
     id: string;
@@ -39,6 +40,9 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
     const resolvedParams = use(params);
     const roomId = resolvedParams.id;
     const router = useRouter();
+
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState("");
 
     const [sala, setSala] = useState<Sala | null>(null);
     const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
@@ -67,6 +71,8 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
     const [chartPerguntaTexto, setChartPerguntaTexto] = useState("");
 
     useEffect(() => {
+        if (!isAuthenticated) return;
+
         fetchData();
 
         const channel = supabase
@@ -76,7 +82,15 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-    }, [roomId]);
+    }, [roomId, isAuthenticated]);
+
+    const handleLogin = () => {
+        if (password === process.env.NEXT_PUBLIC_SENHA_ACESSO_ADMIN) {
+            setIsAuthenticated(true);
+        } else {
+            alert("Senha incorreta");
+        }
+    };
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -250,6 +264,30 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
         const encodedData = window.btoa(unescape(encodeURIComponent(svgData)));
         img.src = "data:image/svg+xml;base64," + encodedData;
     };
+
+    if (!isAuthenticated) {
+        return (
+            <div className="flex h-screen items-center justify-center p-4 bg-background">
+                <ThemeToggle />
+                <FallingLeaves count={40} />
+                <Card className="w-full max-w-md text-center z-100">
+                    <CardHeader><CardTitle>Acesso administrador</CardTitle></CardHeader>
+                    <CardContent className="flex flex-col gap-4">
+                        <Input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Digite a senha"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") handleLogin();
+                            }}
+                        />
+                        <Button onClick={handleLogin}>Acessar Sala</Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     if (isLoading) return <div className="flex h-screen items-center justify-center">Carregando painel da sala...</div>;
     if (!sala) return <div className="flex h-screen items-center justify-center">Sala não encontrada.</div>;
@@ -640,7 +678,7 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                             <Button variant="outline" onClick={downloadQRCode} className="w-full max-w-[220px] font-bold text-primary border-primary/20 hover:bg-primary/5 transition-colors">
                                 <Download className="h-4 w-4 mr-2" /> Baixar QR Code
                             </Button>
-                            <div className="flex w-full items-center space-x-2"><Input value={inviteUrl} onChange={() => {}} onFocus={(e) => e.target.select()} className="bg-zinc-100 font-mono text-sm" /><Button size="icon" onClick={copyToClipboard} className="shrink-0">{isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}</Button></div>
+                            <div className="flex w-full items-center space-x-2"><Input value={inviteUrl} onChange={() => { }} onFocus={(e) => e.target.select()} className="bg-zinc-100 font-mono text-sm" /><Button size="icon" onClick={copyToClipboard} className="shrink-0">{isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}</Button></div>
                         </div>
                     </DialogContent>
                 </Dialog>

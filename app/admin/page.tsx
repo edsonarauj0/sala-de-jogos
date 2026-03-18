@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   };
 
   const handleLogin = () => {
-    if (password === "123") {
+    if (password === process.env.NEXT_PUBLIC_SENHA_ACESSO_ADMIN) {
       setIsAuthenticated(true);
       fetchSalas();
     } else {
