@@ -10,7 +10,7 @@ import { useGameProgress } from "@/components/hooks/GameState";
 import confetti from "canvas-confetti";
 import { FallingLeaves } from "@/components/ui/FallingLeaves";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Info, Candy, Eye, Lightbulb } from "lucide-react";
+import { Info, Candy, Eye, Lightbulb, FileQuestion, MailQuestion, MessageCircleQuestion } from "lucide-react";
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -283,10 +283,10 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       {state.step === 'mais_provavel' && (
         <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
+            <h1 className="text-2xl font-bold text-primary z-10 text-center uppercase">{sala.nome}</h1>
           )}
           <CardHeader>
-            <CardTitle>Jogo 2: Quem é mais provável?</CardTitle>
+            <CardTitle>Quem é mais provável?</CardTitle>
             {perguntas.length > 0 ? (
               <p className="text-sm font-medium text-foreground mt-2">{perguntaAtualIndex + 1}. {perguntaAtual?.texto}</p>
             ) : (
