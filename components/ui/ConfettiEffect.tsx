@@ -26,13 +26,11 @@ export function ConfettiEffect() {
 
       const particleCount = 50 * (timeLeft / duration);
 
-      // Explosão vindo da esquerda
       confetti({
         ...defaults,
         particleCount,
         origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
       });
-      // Explosão vindo da direita
       confetti({
         ...defaults,
         particleCount,

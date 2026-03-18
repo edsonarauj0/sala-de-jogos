@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { use, useCallback, useEffect, useState } from "react";
@@ -9,7 +10,7 @@ import { useGameProgress } from "@/components/hooks/GameState";
 import confetti from "canvas-confetti";
 import { FallingLeaves } from "@/components/ui/FallingLeaves";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Info } from "lucide-react";
+import { Info, Candy, Eye, Lightbulb } from "lucide-react";
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -226,7 +227,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       {state.step === 'name' && (
         <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300 z-100">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2 uppercase">{sala.nome}</h1>
           )}
           <CardHeader><CardTitle>Como podemos te chamar?</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -237,17 +238,40 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       )}
 
       {state.step === 'jujubas' && (
-        <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100">
+        <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100 mb-2">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
-          )}
-          <div className="px-4 pb-2">
-            <div className=" border bg-yellow-200/20  border-yellow-600 dark:border-yellow-600 text-yellow-600 dark:text-yellow-600 p-3 rounded-lg text-sm flex items-center">
-              <Info className="h-4 w-4 mr-2 shrink-0" />
-              <span><strong>Dica:</strong> tem mais de 100 e menos de 1000</span>
+            <div>
+              <h1 className="text-2xl font-bold text-primary z-10 text-center uppercase">{sala.nome}</h1>
+              <h3 className="text-sm font-bold text-muted-foreground text-center flex items-center justify-center gap-2">
+                <Candy className="w-4 h-4 text-pink-500" /> Jogo das Jujubas <Candy className="w-4 h-4 text-pink-500" />
+              </h3>
             </div>
-          </div>
-          <CardHeader><CardTitle>Jogo 1: Quantas jujubas tem no pote?</CardTitle></CardHeader>
+          )}
+          <CardHeader className="space-y-5">
+            <div className="space-y-3">
+              {/* Alert "Como Jogar" - Cinza Suave */}
+              <Alert className="bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800/60 transition-all hover:shadow-sm">
+                <Eye className="h-4 w-4 text-slate-500! dark:text-slate-400!" />
+                <AlertTitle className="text-slate-800 dark:text-slate-200">Como jogar?</AlertTitle>
+                <AlertDescription className="text-slate-600 dark:text-slate-400">
+                  Olhe para o pote e tente adivinhar a quantidade exata de jujubas que tem dentro dele!
+                </AlertDescription>
+              </Alert>
+
+              {/* Alert "Dica" - Amarelo Suave */}
+              <Alert className="bg-amber-50/60 dark:bg-amber-950/15 border-amber-200/50 dark:border-amber-900/30 transition-all hover:shadow-sm">
+                <Lightbulb className="h-4 w-4 text-amber-600! dark:text-amber-500!" />
+                <AlertTitle className="text-amber-900 dark:text-amber-200">Dica Quente</AlertTitle>
+                <AlertDescription className="text-amber-700/80 dark:text-amber-200/70">
+                  Existem mais de 100 e menos de 1000 jujubas.
+                </AlertDescription>
+              </Alert>
+            </div>
+
+            <div className="text-center pt-2">
+              <CardTitle>Quantas jujubas tem no pote?</CardTitle>
+            </div>
+          </CardHeader>
 
           <CardContent className="flex flex-col gap-4">
             <Input type="number" value={state.jujubaGuess} onChange={(e) => updateState({ jujubaGuess: e.target.value })} placeholder="Dê seu palpite..." disabled={isSaving} />

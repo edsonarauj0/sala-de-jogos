@@ -640,7 +640,7 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                             <Button variant="outline" onClick={downloadQRCode} className="w-full max-w-[220px] font-bold text-primary border-primary/20 hover:bg-primary/5 transition-colors">
                                 <Download className="h-4 w-4 mr-2" /> Baixar QR Code
                             </Button>
-                            <div className="flex w-full items-center space-x-2"><Input readOnly value={inviteUrl} className="bg-zinc-100 font-mono text-sm" /><Button size="icon" onClick={copyToClipboard} className="shrink-0">{isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}</Button></div>
+                            <div className="flex w-full items-center space-x-2"><Input value={inviteUrl} onChange={() => {}} onFocus={(e) => e.target.select()} className="bg-zinc-100 font-mono text-sm" /><Button size="icon" onClick={copyToClipboard} className="shrink-0">{isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}</Button></div>
                         </div>
                     </DialogContent>
                 </Dialog>
