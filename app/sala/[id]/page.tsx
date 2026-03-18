@@ -226,7 +226,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       {state.step === 'name' && (
         <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300 z-100">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
           )}
           <CardHeader><CardTitle>Como podemos te chamar?</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -239,7 +239,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       {state.step === 'jujubas' && (
         <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
           )}
           <div className="px-4 pb-2">
             <div className=" border bg-yellow-200/20  border-yellow-600 dark:border-yellow-600 text-yellow-600 dark:text-yellow-600 p-3 rounded-lg text-sm flex items-center">
@@ -259,7 +259,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       {state.step === 'mais_provavel' && (
         <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
           )}
           <CardHeader>
             <CardTitle>Jogo 2: Quem é mais provável?</CardTitle>
@@ -310,7 +310,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       {state.step === 'finished' && (
         <Card className="w-full max-w-md text-center py-8 z-100">
           {sala?.nome && (
-            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2 z-10 text-center p-2">{sala.nome}</h1>
           )}
           <CardHeader>
             <CardTitle className="text-3xl">🎉</CardTitle>

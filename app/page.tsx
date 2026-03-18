@@ -29,7 +29,7 @@ export default function Home() {
         <CardContent>
           <form onSubmit={handleJoin} className="flex flex-col gap-4">
             <Input
-              placeholder="Ex: SALA-123"
+              placeholder="Ex: 4ZFT81"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
             />
