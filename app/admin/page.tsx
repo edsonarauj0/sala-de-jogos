@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +34,17 @@ export default function AdminDashboard() {
   const [salas, setSalas] = useState<Sala[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const auth = localStorage.getItem("admin_auth");
+      if (auth === "true") {
+        setIsAuthenticated(true);
+        fetchSalas();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentSalaId, setCurrentSalaId] = useState<string | null>(null);
@@ -58,6 +69,7 @@ export default function AdminDashboard() {
   const handleLogin = () => {
     if (password === process.env.NEXT_PUBLIC_SENHA_ACESSO_ADMIN) {
       setIsAuthenticated(true);
+      localStorage.setItem("admin_auth", "true");
       fetchSalas();
     } else {
       alert("Senha incorreta");

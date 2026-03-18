@@ -44,6 +44,15 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState("");
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const auth = localStorage.getItem("admin_auth");
+            if (auth === "true") {
+                setIsAuthenticated(true);
+            }
+        }
+    }, []);
+
     const [sala, setSala] = useState<Sala | null>(null);
     const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
     const [candidatos, setCandidatos] = useState<Candidato[]>([]);
@@ -87,6 +96,7 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
     const handleLogin = () => {
         if (password === process.env.NEXT_PUBLIC_SENHA_ACESSO_ADMIN) {
             setIsAuthenticated(true);
+            localStorage.setItem("admin_auth", "true");
         } else {
             alert("Senha incorreta");
         }
@@ -383,10 +393,10 @@ export default function AdminSalaDashboard({ params }: { params: Promise<{ id: s
                                                             <span className="font-medium text-foreground">{p.nome}</span>
                                                             <button
                                                                 onClick={() => handleDeleteParticipante(p.nome)}
-                                                                className="text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                                className="text-zinc-400 hover:text-red-500 transition-colors"
                                                                 title={`Excluir todos os dados de ${p.nome}`}
                                                             >
-                                                                <Trash2 className="h-4 w-4" />
+                                                                <Trash2 className="h-3 w-3" />
                                                             </button>
                                                         </div>
                                                     ))}
