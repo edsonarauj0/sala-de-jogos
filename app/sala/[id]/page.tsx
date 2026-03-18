@@ -9,6 +9,7 @@ import { useGameProgress } from "@/components/hooks/GameState";
 import confetti from "canvas-confetti";
 import { FallingLeaves } from "@/components/ui/FallingLeaves";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Info } from "lucide-react";
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -218,11 +219,15 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const perguntaAtual = perguntas[perguntaAtualIndex];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex flex-col min-h-screen items-center justify-center bg-background p-4">
       <ThemeToggle />
       <FallingLeaves count={40} />
+
       {state.step === 'name' && (
         <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300 z-100">
+          {sala?.nome && (
+            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+          )}
           <CardHeader><CardTitle>Como podemos te chamar?</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
             <Input value={state.name} onChange={(e) => updateState({ name: e.target.value })} placeholder="Seu nome" disabled={isSaving} />
@@ -233,16 +238,29 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
       {state.step === 'jujubas' && (
         <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100">
+          {sala?.nome && (
+            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+          )}
+          <div className="px-4 pb-2">
+            <div className=" border bg-yellow-200/20  border-yellow-600 dark:border-yellow-600 text-yellow-600 dark:text-yellow-600 p-3 rounded-lg text-sm flex items-center">
+              <Info className="h-4 w-4 mr-2 shrink-0" />
+              <span><strong>Dica:</strong> tem mais de 100 e menos de 1000</span>
+            </div>
+          </div>
           <CardHeader><CardTitle>Jogo 1: Quantas jujubas tem no pote?</CardTitle></CardHeader>
+
           <CardContent className="flex flex-col gap-4">
             <Input type="number" value={state.jujubaGuess} onChange={(e) => updateState({ jujubaGuess: e.target.value })} placeholder="Dê seu palpite..." disabled={isSaving} />
-            <Button disabled={!state.jujubaGuess || isSaving} onClick={handleSaveJujubaGuess}>{isSaving ? "Enviando..." : "Próximo Jogo"}</Button>
+            <Button className="py-4" disabled={!state.jujubaGuess || isSaving} onClick={handleSaveJujubaGuess}>{isSaving ? "Enviando..." : "Próximo Jogo"}</Button>
           </CardContent>
         </Card>
       )}
 
       {state.step === 'mais_provavel' && (
         <Card className="w-full max-w-md animate-in slide-in-from-right-4 duration-300 z-100">
+          {sala?.nome && (
+            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+          )}
           <CardHeader>
             <CardTitle>Jogo 2: Quem é mais provável?</CardTitle>
             {perguntas.length > 0 ? (
@@ -291,6 +309,9 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
       {state.step === 'finished' && (
         <Card className="w-full max-w-md text-center py-8 z-100">
+          {sala?.nome && (
+            <h1 className="text-2xl font-bold text-foreground mb-6 z-10 text-center">{sala.nome}</h1>
+          )}
           <CardHeader>
             <CardTitle className="text-3xl">🎉</CardTitle>
             <CardTitle>Respostas salvas!</CardTitle>
