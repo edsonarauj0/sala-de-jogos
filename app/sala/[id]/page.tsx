@@ -23,6 +23,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const [perguntaAtualIndex, setPerguntaAtualIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [top3Jujubas, setTop3Jujubas] = useState<any[]>([]);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const fireConfetti = useCallback(() => {
     const duration = 5000;
@@ -169,11 +171,12 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
   if (!isLoaded || !sala) return <div className="flex h-screen items-center justify-center">Carregando os jogos...</div>;
 
-  const handleSaveNameAndContinue = async () => {
-    if (!state.name.trim()) return;
+  const handleSaveNameAndContinue = async (overrideName?: string | React.MouseEvent) => {
+    const finalName = typeof overrideName === 'string' ? overrideName : state.name;
+    if (!finalName.trim()) return;
     setIsSaving(true);
     try {
-      await supabase.from("participantes").insert([{ sala_id: sala.id, nome: state.name }]);
+      await supabase.from("participantes").insert([{ sala_id: sala.id, nome: finalName }]);
       if (sala.jogo_jujubas_ativo) {
         updateState({ step: 'jujubas' });
       } else if (sala.jogo_provavel_ativo) {
@@ -231,8 +234,15 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           )}
           <CardHeader><CardTitle>Como podemos te chamar?</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <Input value={state.name} onChange={(e) => updateState({ name: e.target.value })} placeholder="Seu nome" disabled={isSaving} />
-            <Button disabled={!state.name || isSaving} onClick={handleSaveNameAndContinue}>{isSaving ? "Entrando..." : "Continuar"}</Button>
+            <div className="flex gap-2">
+              <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Nome" disabled={isSaving} />
+              <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Sobrenome" disabled={isSaving} />
+            </div>
+            <Button disabled={!firstName.trim() || !lastName.trim() || isSaving} onClick={() => {
+              const fullName = `${firstName.trim()} ${lastName.trim()}`;
+              updateState({ name: fullName });
+              handleSaveNameAndContinue(fullName);
+            }}>{isSaving ? "Entrando..." : "Continuar"}</Button>
           </CardContent>
         </Card>
       )}
